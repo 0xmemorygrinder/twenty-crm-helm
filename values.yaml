@@ -1,0 +1,131 @@
+replicaCount: 1
+
+#namespace: tholgar-infra
+
+image:
+  repository: twentycrm/twenty
+  pullPolicy: Always
+  tag: "latest"
+
+postgres:
+  image:
+    repository: twentycrm/twenty-postgres-spilo
+    tag: "latest"
+  enabled: false
+
+server:
+  enabled: true
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "1024Mi"
+      cpu: "1000m"
+  service:
+    type: ClusterIP
+    port: 3000
+  env:
+    nodePort: "3000"
+    serverUrl: "https://crm.arkenfi.dev:443"
+    signInPrefilled: "false"
+    storageType: "local"
+    accessTokenExpiresIn: "7d"
+    loginTokenExpiresIn: "1h"
+
+worker:
+  enabled: true
+  resources:
+    requests:
+      memory: "1024Mi"
+      cpu: "250m"
+    limits:
+      memory: "2048Mi"
+      cpu: "1000m"
+  env:
+    disableDbMigrations: "false"
+
+ingress:
+  enabled: true
+  className: "traefik"
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    cert-manager.io/cluster-issuer: "acme"
+  hosts:
+    - host: crm.arkenfi.dev
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: twenty-crm-tls
+      hosts:
+        - crm.arkenfi.dev
+
+persistence:
+  server:
+    enabled: true
+    size: 10Gi
+    storageClass: ""
+    accessMode: ReadWriteOnce
+  dockerData:
+    enabled: true
+    size: 10Gi
+    storageClass: ""
+    accessMode: ReadWriteOnce
+
+secrets:
+  appSecret: ""  # Leave empty to auto-generate a random secret
+  existingSecret: ""  # Set to use an existing secret instead of creating one
+  appSecretKey: "accessToken"
+
+redis:
+  enabled: true
+  architecture: standalone
+  auth:
+    enabled: false
+  master:
+    resources:
+      requests:
+        memory: "1024Mi"
+        cpu: "250m"
+      limits:
+        memory: "2048Mi"
+        cpu: "500m"
+
+postgresql:
+  enabled: true
+  auth:
+    database: "default"
+    username: "postgres"
+    password: "postgres"
+    postgresPassword: "postgres"
+  primary:
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "250m"
+      limits:
+        memory: "1024Mi"
+        cpu: "1000m"
+    persistence:
+      enabled: true
+      size: 10Gi
+
+externalDatabase:
+  enabled: false
+  host: ""
+  port: 5432
+  database: "default"
+  username: "postgres"
+  password: "postgres"
+  existingSecret: ""
+  existingSecretPasswordKey: ""
+
+externalRedis:
+  enabled: false
+  host: ""
+  port: 6379
+  password: ""
+  existingSecret: ""
+  existingSecretPasswordKey: ""

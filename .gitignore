@@ -1,0 +1,58 @@
+# Helm
+*.tgz
+charts/*.tgz
+requirements.lock
+Chart.lock
+
+# Helm test output
+test-output/
+
+# IDE
+.vscode/
+.idea/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.bak
+*.backup
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+env/
+venv/
+.env
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Testing
+coverage/
+.nyc_output/
+
+# Build artifacts
+dist/
+build/
+target/
+
+# AI config
+.claude/

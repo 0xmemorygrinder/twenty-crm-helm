@@ -1,0 +1,38 @@
+{{- if .Values.persistence.server.enabled }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "twenty-helm.fullname" . }}-server-pvc
+  labels:
+    {{- include "twenty-helm.labels" . | nindent 4 }}
+    app.kubernetes.io/component: server-storage
+spec:
+  accessModes:
+    - {{ .Values.persistence.server.accessMode }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.server.size }}
+  {{- if .Values.persistence.server.storageClass }}
+  storageClassName: {{ .Values.persistence.server.storageClass | quote }}
+  {{- end }}
+{{- end }}
+{{- if .Values.persistence.dockerData.enabled }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "twenty-helm.fullname" . }}-docker-data-pvc
+  labels:
+    {{- include "twenty-helm.labels" . | nindent 4 }}
+    app.kubernetes.io/component: docker-data-storage
+spec:
+  accessModes:
+    - {{ .Values.persistence.dockerData.accessMode }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.dockerData.size }}
+  {{- if .Values.persistence.dockerData.storageClass }}
+  storageClassName: {{ .Values.persistence.dockerData.storageClass | quote }}
+  {{- end }}
+{{- end }}

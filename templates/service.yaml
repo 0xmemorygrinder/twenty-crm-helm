@@ -1,0 +1,19 @@
+{{- if .Values.server.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "twenty-helm.fullname" . }}-server
+  labels:
+    {{- include "twenty-helm.labels" . | nindent 4 }}
+    app.kubernetes.io/component: server
+spec:
+  type: {{ .Values.server.service.type }}
+  ports:
+    - port: {{ .Values.server.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http-tcp
+  selector:
+    {{- include "twenty-helm.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: server
+{{- end }}

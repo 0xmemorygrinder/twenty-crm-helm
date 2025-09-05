@@ -1,0 +1,84 @@
+{{- if and .Values.postgres.enabled (not .Values.postgresql.enabled) (not .Values.externalDatabase.enabled) }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "twenty-helm.fullname" . }}-db
+  labels:
+    {{- include "twenty-helm.labels" . | nindent 4 }}
+    app.kubernetes.io/component: database
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "twenty-helm.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: database
+  template:
+    metadata:
+      labels:
+        {{- include "twenty-helm.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: database
+    spec:
+      volumes:
+        - name: db-data
+          persistentVolumeClaim:
+            claimName: {{ include "twenty-helm.fullname" . }}-db-pvc
+      containers:
+        - name: postgres
+          image: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: PGUSER_SUPERUSER
+              value: "postgres"
+            - name: PGPASSWORD_SUPERUSER
+              value: "postgres"
+            - name: SPILO_PROVIDER
+              value: "local"
+            - name: ALLOW_NOSSL
+              value: "true"
+          ports:
+            - containerPort: 5432
+              name: tcp
+              protocol: TCP
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "1024Mi"
+              cpu: "1000m"
+          volumeMounts:
+            - mountPath: /home/postgres/pgdata
+              name: db-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "twenty-helm.fullname" . }}-db
+  labels:
+    {{- include "twenty-helm.labels" . | nindent 4 }}
+    app.kubernetes.io/component: database
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5432
+      targetPort: tcp
+      protocol: TCP
+      name: tcp
+  selector:
+    {{- include "twenty-helm.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: database
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "twenty-helm.fullname" . }}-db-pvc
+  labels:
+    {{- include "twenty-helm.labels" . | nindent 4 }}
+    app.kubernetes.io/component: database
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+{{- end }}

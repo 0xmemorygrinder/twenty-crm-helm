@@ -1,0 +1,77 @@
+{{- if .Values.server.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "twenty-helm.fullname" . }}-server
+  labels:
+    {{- include "twenty-helm.labels" . | nindent 4 }}
+    app.kubernetes.io/component: server
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "twenty-helm.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: server
+  template:
+    metadata:
+      labels:
+        {{- include "twenty-helm.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: server
+    spec:
+      {{- if or .Values.persistence.server.enabled .Values.persistence.dockerData.enabled }}
+      volumes:
+        {{- if .Values.persistence.server.enabled }}
+        - name: server-data
+          persistentVolumeClaim:
+            claimName: {{ include "twenty-helm.fullname" . }}-server-pvc
+        {{- end }}
+        {{- if .Values.persistence.dockerData.enabled }}
+        - name: docker-data
+          persistentVolumeClaim:
+            claimName: {{ include "twenty-helm.fullname" . }}-docker-data-pvc
+        {{- end }}
+      {{- end }}
+      containers:
+        - name: twenty-server
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: NODE_PORT
+              value: {{ .Values.server.env.nodePort | quote }}
+            - name: SERVER_URL
+              value: {{ .Values.server.env.serverUrl | quote }}
+            - name: PG_DATABASE_URL
+              value: {{ include "twenty-helm.databaseUrl" . | quote }}
+            - name: REDIS_URL
+              value: {{ include "twenty-helm.redisUrl" . | quote }}
+            - name: SIGN_IN_PREFILLED
+              value: {{ .Values.server.env.signInPrefilled | quote }}
+            - name: STORAGE_TYPE
+              value: {{ .Values.server.env.storageType | quote }}
+            - name: ACCESS_TOKEN_EXPIRES_IN
+              value: {{ .Values.server.env.accessTokenExpiresIn | quote }}
+            - name: LOGIN_TOKEN_EXPIRES_IN
+              value: {{ .Values.server.env.loginTokenExpiresIn | quote }}
+            - name: APP_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.existingSecret | default (printf "%s-tokens" (include "twenty-helm.fullname" .)) }}
+                  key: {{ .Values.secrets.appSecretKey | default "accessToken" }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.server.service.port }}
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.server.resources | nindent 12 }}
+          {{- if or .Values.persistence.server.enabled .Values.persistence.dockerData.enabled }}
+          volumeMounts:
+            {{- if .Values.persistence.dockerData.enabled }}
+            - name: docker-data
+              mountPath: /app/docker-data
+            {{- end }}
+            {{- if .Values.persistence.server.enabled }}
+            - name: server-data
+              mountPath: /app/packages/twenty-server/.local-storage
+            {{- end }}
+          {{- end }}
+{{- end }}

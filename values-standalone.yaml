@@ -1,0 +1,37 @@
+# Example values for standalone deployment without external dependencies
+# This uses the Twenty-specific PostgreSQL image instead of Bitnami subchart
+
+namespace: twentycrm
+
+# Use Twenty's PostgreSQL image
+postgresql:
+  enabled: false
+
+postgres:
+  enabled: true
+  image:
+    repository: twentycrm/twenty-postgres-spilo
+    tag: latest
+
+# Redis remains as subchart
+redis:
+  enabled: true
+  architecture: standalone
+  auth:
+    enabled: false
+
+server:
+  enabled: true
+  env:
+    serverUrl: "https://my-twenty-crm.example.com"
+
+ingress:
+  enabled: true
+  hosts:
+    - host: my-twenty-crm.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+
+secrets:
+  appSecret: "my-super-secret-app-key-change-this-in-production"
