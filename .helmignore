@@ -21,3 +21,10 @@
 .idea/
 *.tmproj
 .vscode/
+# GitHub
+.github/
+# Helm files
+.helmignore
+# CI files
+.travis.yml
+.gitlab-ci.yml

@@ -10,22 +10,39 @@ This Helm chart deploys Twenty CRM on a Kubernetes cluster.
 
 ## Installation
 
-### Add Bitnami repository (for Redis and PostgreSQL subcharts)
+### Add the Helm repository
 ```bash
-helm repo add bitnami https://charts.bitnami.com/bitnami
+# Add this Helm chart repository
+helm repo add twenty-crm https://0xmemorygrinder.github.io/twenty-crm-helm
 helm repo update
 ```
 
 ### Install the chart
 ```bash
-# Download dependencies
-helm dependency update ./twenty-helm
-
 # Install with default values
-helm install my-twenty ./twenty-helm
+helm install my-twenty twenty-crm/twenty-crm
 
 # Install with custom values
-helm install my-twenty ./twenty-helm -f my-values.yaml
+helm install my-twenty twenty-crm/twenty-crm -f my-values.yaml
+
+# Install a specific version
+helm install my-twenty twenty-crm/twenty-crm --version 0.1.0
+```
+
+### Install from source
+```bash
+# Add Bitnami repository (for Redis and PostgreSQL subcharts)
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo update
+
+# Download dependencies
+helm dependency update .
+
+# Install with default values
+helm install my-twenty .
+
+# Install with custom values
+helm install my-twenty . -f my-values.yaml
 ```
 
 ## Configuration
@@ -171,7 +188,11 @@ secrets:
 ## Upgrading
 
 ```bash
-helm upgrade my-twenty ./twenty-helm
+# Upgrade from the repository
+helm upgrade my-twenty twenty-crm/twenty-crm
+
+# Upgrade from source
+helm upgrade my-twenty .
 ```
 
 ## Uninstallation
