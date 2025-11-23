@@ -1,0 +1,123 @@
+# Example values for deployment with Zalando PostgreSQL Operator
+# This configuration creates a highly available PostgreSQL cluster
+# Prerequisites: Zalando PostgreSQL Operator must be installed in the cluster
+# See: https://github.com/zalando/postgres-operator
+
+namespace: twentycrm
+
+# Use Zalando PostgreSQL Operator for HA PostgreSQL cluster
+zalandoPostgresql:
+  enabled: true
+  teamId: "twenty-crm"
+  clusterName: "twenty-crm-db"
+  numberOfInstances: 2  # High availability with 2 replicas
+  version: "16"
+  database: "default"
+  users:
+    postgres: []
+  volume:
+    size: 20Gi
+    storageClass: ""  # Use default storage class
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: 2000m
+      memory: 2Gi
+  # Enable connection pooler (PgBouncer) for better connection management
+  enableConnectionPooler: true
+  connectionPooler:
+    numberOfInstances: 2
+    mode: "transaction"  # Options: session, transaction, statement
+    resources:
+      requests:
+        cpu: 100m
+        memory: 100Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi
+
+# Disable Twenty's standalone PostgreSQL
+postgres:
+  enabled: false
+
+# Redis configuration
+redis:
+  enabled: true
+  architecture: standalone
+  auth:
+    enabled: false
+  master:
+    resources:
+      requests:
+        memory: "1024Mi"
+        cpu: "250m"
+      limits:
+        memory: "2048Mi"
+        cpu: "500m"
+
+# Server configuration
+server:
+  enabled: true
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "500m"
+    limits:
+      memory: "2048Mi"
+      cpu: "2000m"
+  env:
+    serverUrl: "https://my-twenty-crm.example.com"
+    signInPrefilled: "false"
+    storageType: "local"
+    accessTokenExpiresIn: "7d"
+    loginTokenExpiresIn: "1h"
+
+# Worker configuration
+worker:
+  enabled: true
+  resources:
+    requests:
+      memory: "1024Mi"
+      cpu: "500m"
+    limits:
+      memory: "4096Mi"
+      cpu: "2000m"
+  env:
+    disableDbMigrations: "false"
+
+# Ingress configuration
+ingress:
+  enabled: true
+  className: "nginx"  # Change to your ingress controller
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  hosts:
+    - host: my-twenty-crm.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: twenty-crm-tls
+      hosts:
+        - my-twenty-crm.example.com
+
+# Persistence configuration
+persistence:
+  server:
+    enabled: true
+    size: 20Gi
+    storageClass: ""  # Use default storage class
+    accessMode: ReadWriteOnce
+  dockerData:
+    enabled: true
+    size: 20Gi
+    storageClass: ""  # Use default storage class
+    accessMode: ReadWriteOnce
+
+# Secrets configuration
+secrets:
+  appSecret: ""  # Leave empty to auto-generate
+  existingSecret: ""  # Or use an existing secret
+  appSecretKey: "accessToken"

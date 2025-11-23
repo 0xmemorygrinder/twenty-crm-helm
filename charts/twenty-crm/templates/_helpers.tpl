@@ -65,8 +65,8 @@ Database URL
 {{- define "twenty-helm.databaseUrl" -}}
 {{- if .Values.externalDatabase.enabled -}}
 postgres://{{ .Values.externalDatabase.username }}:{{ .Values.externalDatabase.password }}@{{ .Values.externalDatabase.host }}:{{ .Values.externalDatabase.port }}/{{ .Values.externalDatabase.database }}
-{{- else if .Values.postgresql.enabled -}}
-postgres://{{ .Values.postgresql.auth.username }}:{{ .Values.postgresql.auth.password }}@{{ include "twenty-helm.name" . }}-postgresql:5432/{{ .Values.postgresql.auth.database }}
+{{- else if .Values.zalandoPostgresql.enabled -}}
+postgres://postgres:$(POSTGRES_PASSWORD)@{{ .Values.zalandoPostgresql.clusterName }}:5432/{{ .Values.zalandoPostgresql.database }}
 {{- else if .Values.postgres.enabled -}}
 postgres://postgres:postgres@{{ include "twenty-helm.fullname" . }}-db:5432/default
 {{- else -}}

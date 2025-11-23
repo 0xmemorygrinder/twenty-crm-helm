@@ -93,24 +93,48 @@ redis:
         memory: "2048Mi"
         cpu: "500m"
 
-postgresql:
-  enabled: true
-  auth:
-    database: "default"
-    username: "postgres"
-    password: "postgres"
-    postgresPassword: "postgres"
-  primary:
+# Zalando PostgreSQL Operator
+# Note: Requires the Zalando PostgreSQL Operator to be installed in the cluster
+# See: https://github.com/zalando/postgres-operator
+zalandoPostgresql:
+  enabled: false
+  # Team ID for the PostgreSQL cluster
+  teamId: "twenty-crm"
+  # PostgreSQL cluster name
+  clusterName: "twenty-crm-db"
+  # Number of PostgreSQL instances
+  numberOfInstances: 2
+  # PostgreSQL version
+  version: "16"
+  # Database name
+  database: "default"
+  # Database users
+  users:
+    postgres: []
+  # Volume size for PostgreSQL data
+  volume:
+    size: 10Gi
+    storageClass: ""
+  # Resource requests and limits
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 1024Mi
+  # Connection pooler configuration
+  enableConnectionPooler: false
+  connectionPooler:
+    numberOfInstances: 2
+    mode: "transaction"
     resources:
       requests:
-        memory: "256Mi"
-        cpu: "250m"
+        cpu: 100m
+        memory: 100Mi
       limits:
-        memory: "1024Mi"
-        cpu: "1000m"
-    persistence:
-      enabled: true
-      size: 10Gi
+        cpu: 500m
+        memory: 256Mi
 
 externalDatabase:
   enabled: false

@@ -36,6 +36,13 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
+            {{- if .Values.zalandoPostgresql.enabled }}
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres.{{ .Values.zalandoPostgresql.clusterName }}.credentials.postgresql.acid.zalan.do
+                  key: password
+            {{- end }}
             - name: NODE_PORT
               value: {{ .Values.server.env.nodePort | quote }}
             - name: SERVER_URL

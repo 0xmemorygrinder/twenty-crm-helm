@@ -1,0 +1,43 @@
+{{- if .Values.zalandoPostgresql.enabled }}
+apiVersion: "acid.zalan.do/v1"
+kind: postgresql
+metadata:
+  name: {{ .Values.zalandoPostgresql.clusterName }}
+  labels:
+    {{- include "twenty-helm.labels" . | nindent 4 }}
+    app.kubernetes.io/component: database
+spec:
+  teamId: {{ .Values.zalandoPostgresql.teamId | quote }}
+  volume:
+    size: {{ .Values.zalandoPostgresql.volume.size }}
+    {{- if .Values.zalandoPostgresql.volume.storageClass }}
+    storageClass: {{ .Values.zalandoPostgresql.volume.storageClass }}
+    {{- end }}
+  numberOfInstances: {{ .Values.zalandoPostgresql.numberOfInstances }}
+  users:
+    {{- toYaml .Values.zalandoPostgresql.users | nindent 4 }}
+  databases:
+    {{ .Values.zalandoPostgresql.database }}: postgres
+  postgresql:
+    version: {{ .Values.zalandoPostgresql.version | quote }}
+  resources:
+    requests:
+      cpu: {{ .Values.zalandoPostgresql.resources.requests.cpu }}
+      memory: {{ .Values.zalandoPostgresql.resources.requests.memory }}
+    limits:
+      cpu: {{ .Values.zalandoPostgresql.resources.limits.cpu }}
+      memory: {{ .Values.zalandoPostgresql.resources.limits.memory }}
+  {{- if .Values.zalandoPostgresql.enableConnectionPooler }}
+  enableConnectionPooler: true
+  connectionPooler:
+    numberOfInstances: {{ .Values.zalandoPostgresql.connectionPooler.numberOfInstances }}
+    mode: {{ .Values.zalandoPostgresql.connectionPooler.mode | quote }}
+    resources:
+      requests:
+        cpu: {{ .Values.zalandoPostgresql.connectionPooler.resources.requests.cpu }}
+        memory: {{ .Values.zalandoPostgresql.connectionPooler.resources.requests.memory }}
+      limits:
+        cpu: {{ .Values.zalandoPostgresql.connectionPooler.resources.limits.cpu }}
+        memory: {{ .Values.zalandoPostgresql.connectionPooler.resources.limits.memory }}
+  {{- end }}
+{{- end }}

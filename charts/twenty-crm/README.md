@@ -31,7 +31,7 @@ helm install my-twenty twenty-crm/twenty-crm --version 0.1.0
 
 ### Install from source
 ```bash
-# Add Bitnami repository (for Redis and PostgreSQL subcharts)
+# Add Bitnami repository (for Redis subchart)
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo update
 
@@ -49,23 +49,64 @@ helm install my-twenty . -f my-values.yaml
 
 ### Database Configuration
 
-The chart supports three database configurations:
+The chart supports four database configurations:
 
-1. **PostgreSQL subchart (default)**: Uses Bitnami PostgreSQL chart
-2. **Twenty-specific PostgreSQL**: Uses Twenty's custom PostgreSQL image with Spilo
+1. **Zalando PostgreSQL Operator**: Uses Zalando PostgreSQL Operator to create a highly available PostgreSQL cluster
+2. **Twenty-specific PostgreSQL**: Uses Twenty's custom PostgreSQL image with Spilo (single instance)
 3. **External database**: Connect to an existing database
+4. **~~Bitnami PostgreSQL subchart~~**: Removed in favor of Zalando operator
 
-To use Twenty's PostgreSQL image:
+#### Using Zalando PostgreSQL Operator (Recommended for Production)
+
+**Prerequisites**: The [Zalando PostgreSQL Operator](https://github.com/zalando/postgres-operator) must be installed in your cluster first.
+
 ```yaml
-postgresql:
-  enabled: false
+zalandoPostgresql:
+  enabled: true
+  teamId: "twenty-crm"
+  clusterName: "twenty-crm-db"
+  numberOfInstances: 2  # High availability with 2 replicas
+  version: "16"
+  database: "default"
+  volume:
+    size: 10Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 1024Mi
+  # Optional: Enable connection pooler (PgBouncer)
+  enableConnectionPooler: true
+  connectionPooler:
+    numberOfInstances: 2
+    mode: "transaction"
+```
+
+The operator will automatically:
+- Create a highly available PostgreSQL cluster
+- Set up replication between instances
+- Create necessary secrets for database credentials
+- Provide automatic failover
+
+#### Using Twenty's PostgreSQL Image
+
+To use Twenty's PostgreSQL image (single instance, not HA):
+```yaml
 postgres:
   enabled: true
+zalandoPostgresql:
+  enabled: false
+externalDatabase:
+  enabled: false
 ```
+
+#### Using an External Database
 
 To use an external database:
 ```yaml
-postgresql:
+zalandoPostgresql:
   enabled: false
 postgres:
   enabled: false
@@ -245,16 +286,21 @@ helm uninstall my-twenty
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| postgresql.enabled | bool | true | Enable PostgreSQL subchart |
-| postgresql.auth.database | string | default | Database name |
-| postgresql.auth.username | string | postgres | Database username |
-| postgresql.auth.password | string | postgres | Database password |
-| postgresql.primary.resources.requests.memory | string | 256Mi | PostgreSQL memory request |
-| postgresql.primary.resources.requests.cpu | string | 250m | PostgreSQL CPU request |
-| postgresql.primary.resources.limits.memory | string | 1024Mi | PostgreSQL memory limit |
-| postgresql.primary.resources.limits.cpu | string | 1000m | PostgreSQL CPU limit |
-| postgresql.primary.persistence.enabled | bool | true | Enable PostgreSQL persistence |
-| postgresql.primary.persistence.size | string | 10Gi | PostgreSQL volume size |
+| zalandoPostgresql.enabled | bool | false | Enable Zalando PostgreSQL Operator cluster |
+| zalandoPostgresql.teamId | string | twenty-crm | Team ID for the PostgreSQL cluster |
+| zalandoPostgresql.clusterName | string | twenty-crm-db | Name of the PostgreSQL cluster |
+| zalandoPostgresql.numberOfInstances | int | 2 | Number of PostgreSQL instances (replicas) |
+| zalandoPostgresql.version | string | 16 | PostgreSQL version |
+| zalandoPostgresql.database | string | default | Database name |
+| zalandoPostgresql.volume.size | string | 10Gi | Volume size for PostgreSQL data |
+| zalandoPostgresql.volume.storageClass | string | "" | Storage class (empty = default) |
+| zalandoPostgresql.resources.requests.cpu | string | 100m | CPU request |
+| zalandoPostgresql.resources.requests.memory | string | 256Mi | Memory request |
+| zalandoPostgresql.resources.limits.cpu | string | 1000m | CPU limit |
+| zalandoPostgresql.resources.limits.memory | string | 1024Mi | Memory limit |
+| zalandoPostgresql.enableConnectionPooler | bool | false | Enable PgBouncer connection pooler |
+| zalandoPostgresql.connectionPooler.numberOfInstances | int | 2 | Number of pooler instances |
+| zalandoPostgresql.connectionPooler.mode | string | transaction | Pooler mode (session, transaction, statement) |
 | postgres.enabled | bool | false | Enable Twenty-specific PostgreSQL |
 | postgres.image.repository | string | twentycrm/twenty-postgres-spilo | Twenty PostgreSQL image |
 | postgres.image.tag | string | latest | Twenty PostgreSQL image tag |

@@ -1,4 +1,4 @@
-{{- if and .Values.postgres.enabled (not .Values.postgresql.enabled) (not .Values.externalDatabase.enabled) }}
+{{- if and .Values.postgres.enabled (not .Values.zalandoPostgresql.enabled) (not .Values.externalDatabase.enabled) }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:

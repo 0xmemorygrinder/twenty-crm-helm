@@ -1,17 +1,18 @@
 # Example values for standalone deployment without external dependencies
-# This uses the Twenty-specific PostgreSQL image instead of Bitnami subchart
+# This uses the Twenty-specific PostgreSQL image instead of subcharts
 
 namespace: twentycrm
 
-# Use Twenty's PostgreSQL image
-postgresql:
-  enabled: false
-
+# Use Twenty's PostgreSQL image (single instance)
 postgres:
   enabled: true
   image:
     repository: twentycrm/twenty-postgres-spilo
     tag: latest
+
+# Disable Zalando operator
+zalandoPostgresql:
+  enabled: false
 
 # Redis remains as subchart
 redis:

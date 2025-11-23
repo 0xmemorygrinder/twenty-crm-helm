@@ -26,6 +26,13 @@ spec:
             - yarn
             - worker:prod
           env:
+            {{- if .Values.zalandoPostgresql.enabled }}
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres.{{ .Values.zalandoPostgresql.clusterName }}.credentials.postgresql.acid.zalan.do
+                  key: password
+            {{- end }}
             - name: SERVER_URL
               value: {{ .Values.server.env.serverUrl | quote }}
             - name: PG_DATABASE_URL
