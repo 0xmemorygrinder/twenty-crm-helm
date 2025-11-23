@@ -4,16 +4,13 @@ on:
   push:
     branches:
       - main
-      - master
-  workflow_dispatch:
-
-permissions:
-  contents: write
-  pages: write
-  id-token: write
 
 jobs:
   release:
+    # depending on default permission settings for your org (contents being read-only or read-write for workloads), you will have to add permissions
+    # see: https://docs.github.com/en/actions/security-guides/automatic-token-authentication#modifying-the-permissions-for-the-github_token
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -26,59 +23,7 @@ jobs:
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
 
-      - name: Install Helm
-        uses: azure/setup-helm@v4
-        with:
-          version: v3.14.0
-
-      - name: Add Bitnami repository
-        run: |
-          helm repo add bitnami https://charts.bitnami.com/bitnami
-          helm repo update
-
-      - name: Update Helm dependencies
-        run: |
-          helm dependency update .
-
-      - name: Package Helm Chart
-        run: |
-          mkdir -p .cr-release-packages
-          helm package . -d .cr-release-packages
-
-      - name: Create or Update gh-pages branch
-        run: |
-          # Check if gh-pages branch exists
-          if git ls-remote --exit-code --heads origin gh-pages; then
-            git fetch origin gh-pages
-            git checkout gh-pages
-          else
-            git checkout --orphan gh-pages
-            git rm -rf .
-            echo "# Helm Chart Repository" > README.md
-            git add README.md
-            git commit -m "Initialize gh-pages"
-            git push origin gh-pages
-            git checkout ${GITHUB_REF##*/}
-          fi
-
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.7.0
-        with:
-          charts_dir: .
-          skip_packaging: true
-          packages_with_index: true
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-          CR_SKIP_EXISTING: true
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: .cr-index
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
