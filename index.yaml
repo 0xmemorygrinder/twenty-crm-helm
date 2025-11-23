@@ -3,6 +3,21 @@ entries:
   twenty-crm:
   - apiVersion: v2
     appVersion: latest
+    created: "2025-11-23T18:08:33.943239701Z"
+    dependencies:
+    - condition: redis.enabled
+      name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: 19.6.4
+    description: A Helm chart for Twenty CRM deployment
+    digest: 9bc4e5775ec8c0dde9df53d6e8d2e57ad3adef54b835e8910f220e4849bd417b
+    name: twenty-crm
+    type: application
+    urls:
+    - https://github.com/0xmemorygrinder/twenty-crm-helm/releases/download/twenty-crm-0.2.0/twenty-crm-0.2.0.tgz
+    version: 0.2.0
+  - apiVersion: v2
+    appVersion: latest
     created: "2025-11-22T17:00:03.91635367Z"
     dependencies:
     - condition: redis.enabled
@@ -20,4 +35,4 @@ entries:
     urls:
     - twenty-crm-0.1.0.tgz
     version: 0.1.0
-generated: "2025-11-22T17:00:03.916362707Z"
+generated: "2025-11-23T18:08:33.943251543Z"
