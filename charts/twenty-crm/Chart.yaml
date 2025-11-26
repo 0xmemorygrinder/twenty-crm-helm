@@ -2,10 +2,5 @@ apiVersion: v2
 name: twenty-crm
 description: A Helm chart for Twenty CRM deployment
 type: application
-version: 0.2.0
+version: 0.3.0
 appVersion: "latest"
-dependencies:
-  - name: redis
-    version: 19.6.4
-    repository: https://charts.bitnami.com/bitnami
-    condition: redis.enabled

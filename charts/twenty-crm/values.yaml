@@ -81,6 +81,23 @@ secrets:
 
 redis:
   enabled: true
+  replicaCount: 1
+  image:
+    repository: redis/redis-stack-server
+    tag: "latest"
+    pullPolicy: Always
+  port: 6379
+  args:
+    - "--maxmemory-policy"
+    - "noeviction"
+  resources:
+    requests:
+      memory: "1024Mi"
+      cpu: "250m"
+    limits:
+      memory: "2048Mi"
+      cpu: "500m"
+  # Legacy configuration for external Redis chart
   architecture: standalone
   auth:
     enabled: false

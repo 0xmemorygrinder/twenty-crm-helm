@@ -17,3 +17,23 @@ spec:
     {{- include "twenty-helm.selectorLabels" . | nindent 4 }}
     app.kubernetes.io/component: server
 {{- end }}
+---
+{{- if .Values.redis.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "twenty-helm.fullname" . }}-redis-master
+  labels:
+    {{- include "twenty-helm.labels" . | nindent 4 }}
+    app.kubernetes.io/component: redis
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ .Values.redis.port }}
+      targetPort: redis
+      protocol: TCP
+      name: redis
+  selector:
+    {{- include "twenty-helm.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: redis
+{{- end }}
