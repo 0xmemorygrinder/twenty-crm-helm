@@ -87,9 +87,6 @@ redis:
     tag: "latest"
     pullPolicy: Always
   port: 6379
-  args:
-    - "--maxmemory-policy"
-    - "noeviction"
   resources:
     requests:
       memory: "1024Mi"
@@ -114,17 +111,17 @@ redis:
 # Note: Requires the Zalando PostgreSQL Operator to be installed in the cluster
 # See: https://github.com/zalando/postgres-operator
 zalandoPostgresql:
-  enabled: false
+  enabled: true
   # Team ID for the PostgreSQL cluster
   teamId: "twenty-crm"
   # PostgreSQL cluster name
   clusterName: "twenty-crm-db"
   # Number of PostgreSQL instances
-  numberOfInstances: 2
+  numberOfInstances: 1
   # PostgreSQL version
   version: "16"
   # Database name
-  database: "default"
+  database: "postgres"
   # Database users
   users:
     postgres: []
@@ -140,6 +137,8 @@ zalandoPostgresql:
     limits:
       cpu: 1000m
       memory: 1024Mi
+  allowedSourceRanges:
+    - 0.0.0.0/0
   # Connection pooler configuration
   enableConnectionPooler: false
   connectionPooler:

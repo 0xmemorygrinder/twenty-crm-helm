@@ -14,6 +14,11 @@ spec:
     storageClass: {{ .Values.zalandoPostgresql.volume.storageClass }}
     {{- end }}
   numberOfInstances: {{ .Values.zalandoPostgresql.numberOfInstances }}
+  patroni:
+    pg_hba:
+      - local all all trust
+      - hostssl all all 0.0.0.0/0 md5
+      - host all all 0.0.0.0/0 md5
   users:
     {{- toYaml .Values.zalandoPostgresql.users | nindent 4 }}
   databases:

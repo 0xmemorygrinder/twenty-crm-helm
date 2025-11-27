@@ -68,7 +68,7 @@ postgres://{{ .Values.externalDatabase.username }}:{{ .Values.externalDatabase.p
 {{- else if .Values.zalandoPostgresql.enabled -}}
 postgres://postgres:$(POSTGRES_PASSWORD)@{{ .Values.zalandoPostgresql.clusterName }}:5432/{{ .Values.zalandoPostgresql.database }}
 {{- else if .Values.postgres.enabled -}}
-postgres://postgres:postgres@{{ include "twenty-helm.fullname" . }}-db:5432/default
+postgres://postgres:postgres@{{ include "twenty-helm.fullname" . }}-db:5432/postgres
 {{- else -}}
 postgres://postgres:postgres@twentycrm-db.twentycrm.svc.cluster.local/default
 {{- end -}}

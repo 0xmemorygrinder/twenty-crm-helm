@@ -28,13 +28,11 @@ spec:
         - name: redis
           image: "{{ .Values.redis.image.repository }}:{{ .Values.redis.image.tag }}"
           imagePullPolicy: {{ .Values.redis.image.pullPolicy }}
-          args:
-            {{- range .Values.redis.args }}
-            - {{ . | quote }}
-            {{- end }}
           env:
             - name: PORT
               value: {{ .Values.redis.port | quote }}
+            - name: REDIS_ARGS
+              value: "--maxmemory-policy noeviction"
           ports:
             - containerPort: {{ .Values.redis.port }}
               name: redis
