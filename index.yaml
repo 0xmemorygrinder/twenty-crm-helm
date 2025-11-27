@@ -3,6 +3,16 @@ entries:
   twenty-crm:
   - apiVersion: v2
     appVersion: latest
+    created: "2025-11-27T17:32:39.45625893Z"
+    description: A Helm chart for Twenty CRM deployment
+    digest: 92d32c6845653803e6fc2bd542ad5b4feb74c6769372aaffc8373ed8d6dd8a20
+    name: twenty-crm
+    type: application
+    urls:
+    - https://github.com/0xmemorygrinder/twenty-crm-helm/releases/download/twenty-crm-0.3.1/twenty-crm-0.3.1.tgz
+    version: 0.3.1
+  - apiVersion: v2
+    appVersion: latest
     created: "2025-11-26T22:57:43.814559983Z"
     description: A Helm chart for Twenty CRM deployment
     digest: 03a72bc0930c765c6d90e9d95c1e7ed43e1d71ca24318c857073312fffdeab25
@@ -45,4 +55,4 @@ entries:
     urls:
     - twenty-crm-0.1.0.tgz
     version: 0.1.0
-generated: "2025-11-26T22:57:43.814571534Z"
+generated: "2025-11-27T17:32:39.456274779Z"
